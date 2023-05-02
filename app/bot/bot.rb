@@ -8,11 +8,13 @@ class TelegramBot
 
   def start
     @client.listen do |message|
-      case message.text
-      when '/start'
-        ask_name(message)
-      else
-        @client.api.send_message(chat_id: message.chat.id, text: "I don't understand what you mean.")
+      if message.is_a?(Telegram::Bot::Types::Message) && message.text
+        case message.text
+        when '/start'
+          ask_name(message)
+        else
+          @client.api.send_message(chat_id: message.chat.id, text: "I don't understand what you mean.")
+        end
       end
     end
   end
