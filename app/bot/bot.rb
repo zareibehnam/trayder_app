@@ -1,7 +1,7 @@
 require 'telegram/bot'
 
 # Initialize the Telegram bot with your API token
-Telegram::Bot::Client.run('TOKEN') do |bot|
+Telegram::Bot::Client.run(ENV["TOKEN"]) do |bot|
   # Listen for messages sent to your bot
   bot.listen do |message|
     # Save the message to the database
