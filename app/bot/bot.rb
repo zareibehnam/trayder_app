@@ -66,16 +66,23 @@ class TelegramBot
     end
 
   def ask_phone_number(message, state, name, university, dob)
-    @client.api.send_message(chat_id: message.chat.id, text: "Please leave your phone number?")
-    @client.listen do |phone_number_message|
-      if phone_number_message.contact
-        phone_number = phone_number_message.contact.phone_number
-        Sunscriber.create!(name: name, phone_number: phone_number, status: university,
-                           address: state, birthday: dob, socials: source)
+    # Create a reply keyboard with a single button to request phone number
+    button = Telegram::Bot::Types::KeyboardButton.new(text: "Share my phone number", request_contact: true)
+    keyboard = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: [[button]], one_time_keyboard: true)
+
+    # Ask the user to share their phone number using the reply keyboard
+    @client.api.send_message(chat_id: message.chat.id, text: "Please share your phone number", reply_markup: keyboard)
+
+    # Listen for a contact message with the phone number
+    @client.listen do |contact_message|
+      if contact_message.contact
+        phone_number = contact_message.contact.phone_number
+        Sunscriber.create!(name: name, phone_number: phone_number, status: university, address: state, birthday: dob, socials: source)
         @client.api.send_message(chat_id: message.chat.id, text: "Thank you, we will call you back later.")
       end
     end
   end
+
 end
 
 bot = TelegramBot.new(ENV['TOKEN'])
