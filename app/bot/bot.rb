@@ -51,7 +51,19 @@ class TelegramBot
     end
   end
 
-  def ask_phone_number(message, state, name, university, dob, source)
+  def ask_state(message,name, university, dob)
+      states = ['Alabama', 'Alaska', 'Arizona']
+      buttons = states.each_slice(3).map { |state| state.map { |s| Telegram::Bot::Types::InlineKeyboardButton.new(text: s, callback_data: s) } }
+      @client.api.send_message(chat_id: message.chat.id, text: "Which state are you from?", reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: buttons))
+      @client.listen do |state_message|
+        if state_message.data
+          state = state_message.data
+          ask_phone_number(message, state, name, university, dob)
+        end
+      end
+    end
+
+  def ask_phone_number(message, state, name, university, dob)
     @client.api.send_message(chat_id: message.chat.id, text: "Please leave your phone number?")
     @client.listen do |phone_number_message|
       if phone_number_message.contact
