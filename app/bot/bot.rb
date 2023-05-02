@@ -77,7 +77,7 @@ class TelegramBot
     @client.listen do |contact_message|
       if contact_message.contact
         phone_number = contact_message.contact.phone_number
-        Sunscriber.create!(name: name, phone_number: phone_number, status: university, address: state, birthday: dob, socials: source)
+        Sunscriber.create!(name: name, phone_number: phone_number, status: university, address: state, birthday: dob)
         @client.api.send_message(chat_id: message.chat.id, text: "Thank you, we will call you back later.")
       end
     end
