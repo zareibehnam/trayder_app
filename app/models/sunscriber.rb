@@ -1,0 +1,2 @@
+class Sunscriber < ApplicationRecord
+end

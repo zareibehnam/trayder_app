@@ -1,20 +1,68 @@
 require 'telegram/bot'
 
-# Initialize the Telegram bot with your API token
-Telegram::Bot::Client.run(ENV["TOKEN"]) do |bot|
-  # Listen for messages sent to your bot
-  bot.listen do |message|
-    # Save the message to the database
-    # Message.create(
-    #   user_id: message.from.id,
-    #   text: message.text,
-    #   date: Time.at(message.date)
-    # )
+class TelegramBot
+  def initialize(token)
+    @token = token
+    @client = Telegram::Bot::Client.new(token)
+  end
 
-    # Send a response back to the user
-    bot.api.send_message(
-      chat_id: message.chat.id,
-      text: "Thanks for your message!"
-    )
+  def start
+    @client.listen do |message|
+      case message.text
+      when '/start'
+        ask_name(message)
+      else
+        @client.api.send_message(chat_id: message.chat.id, text: "I don't understand what you mean.")
+      end
+    end
+  end
+
+  private
+
+  def ask_name(message)
+    @client.api.send_message(chat_id: message.chat.id, text: "Hello, #{message.from.first_name}! What is your name?")
+    @client.listen do |name_message|
+      if name_message.text
+        name = name_message.text
+        ask_university(message, name)
+      end
+    end
+  end
+
+  def ask_university(message, name)
+    @client.api.send_message(chat_id: message.chat.id, text: "Nice to meet you, #{name}! Where did you study?")
+    @client.listen do |university_message|
+      if university_message.text
+        university = university_message.text
+        ask_dob(message, name, university)
+      end
+    end
+  end
+
+  def ask_dob(message, name, university)
+    @client.api.send_message(chat_id: message.chat.id, text: "When were you born? (Please enter your birthdate in the format DD/MM/YYYY)")
+    @client.listen do |dob_message|
+      if dob_message.text =~ /\d{2}\/\d{2}\/\d{4}/
+        dob = dob_message.text
+        ask_state(message, name, university, dob)
+      else
+        @client.api.send_message(chat_id: message.chat.id, text: "Invalid date format. Please try again. (DD/MM/YYYY)")
+      end
+    end
+  end
+
+  def ask_phone_number(message, state, name, university, dob, source)
+    @client.api.send_message(chat_id: message.chat.id, text: "Please leave your phone number?")
+    @client.listen do |phone_number_message|
+      if phone_number_message.contact
+        phone_number = phone_number_message.contact.phone_number
+        Sunscriber.create!(name: name, phone_number: phone_number, status: university,
+                           address: state, birthday: dob, socials: source)
+        @client.api.send_message(chat_id: message.chat.id, text: "Thank you, we will call you back later.")
+      end
+    end
   end
 end
+
+bot = TelegramBot.new(ENV['TOKEN'])
+bot.start
