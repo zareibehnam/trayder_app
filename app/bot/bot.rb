@@ -24,7 +24,7 @@ class TelegramBot
   def ask_name(message)
     @client.api.send_message(chat_id: message.chat.id, text: "Hello, #{message.from.first_name}! What is your name?")
     @client.listen do |name_message|
-      if name_message.text
+      if message.is_a?(Telegram::Bot::Types::Message) && name_message.text
         name = name_message.text
         ask_university(message, name)
       end
@@ -34,7 +34,7 @@ class TelegramBot
   def ask_university(message, name)
     @client.api.send_message(chat_id: message.chat.id, text: "Nice to meet you, #{name}! Where did you study?")
     @client.listen do |university_message|
-      if university_message.text
+      if message.is_a?(Telegram::Bot::Types::Message) && university_message.text
         university = university_message.text
         ask_dob(message, name, university)
       end
@@ -44,7 +44,7 @@ class TelegramBot
   def ask_dob(message, name, university)
     @client.api.send_message(chat_id: message.chat.id, text: "When were you born? (Please enter your birthdate in the format DD/MM/YYYY)")
     @client.listen do |dob_message|
-      if dob_message.text =~ /\d{2}\/\d{2}\/\d{4}/
+      if message.is_a?(Telegram::Bot::Types::Message) && dob_message.text =~ /\d{2}\/\d{2}\/\d{4}/
         dob = dob_message.text
         ask_state(message, name, university, dob)
       else
