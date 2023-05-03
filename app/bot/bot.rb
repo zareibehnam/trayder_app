@@ -10,6 +10,7 @@ class TelegramBot
     lock_file = File.new('bot.lock', File::CREAT|File::EXCL)
     begin
       @client.listen do |message|
+        begin
         if message.is_a?(Telegram::Bot::Types::Message) && message.text
           case message.text
           when '/start'
@@ -17,6 +18,9 @@ class TelegramBot
           else
             @client.api.send_message(chat_id: message.chat.id, text: "I don't understand what you mean.")
           end
+        end
+        rescue => e
+          puts "Error processing message: #{e.message}"
         end
       end
     ensure
