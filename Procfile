@@ -1,2 +1,2 @@
 web: bundle exec puma -C config/puma.rb -t 300
-worker: bundle exec sidekiq
+bot: bundle exec ruby app/bot/bot.rb

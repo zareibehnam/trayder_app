@@ -98,6 +98,6 @@ class TelegramBot
   end
 
 end
-TelegramBotWorker.perform_async(ENV['TOKEN'])
-# bot = TelegramBot.new(ENV['TOKEN'])
-# bot.start
+# TelegramBotWorker.perform_async(ENV['TOKEN'])
+bot = TelegramBot.new(ENV['TOKEN'])
+bot.start
