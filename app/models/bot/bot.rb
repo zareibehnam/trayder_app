@@ -22,6 +22,10 @@ class TelegramBot
           puts "Error processing message: #{e.message}"
         end
       end
+    rescue Telegram::Bot::Exceptions::ResponseError => error
+      puts error.message
+      sleep 5
+      retry
     ensure
       lock_file.close
       File.delete('bot.lock')
