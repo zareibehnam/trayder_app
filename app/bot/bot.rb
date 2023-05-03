@@ -7,15 +7,21 @@ class TelegramBot
   end
 
   def start
-    @client.listen do |message|
-      if message.is_a?(Telegram::Bot::Types::Message) && message.text
-        case message.text
-        when '/start'
-          ask_name(message)
-        else
-          @client.api.send_message(chat_id: message.chat.id, text: "I don't understand what you mean.")
+    lock_file = File.new('bot.lock', File::CREAT|File::EXCL)
+    begin
+      @client.listen do |message|
+        if message.is_a?(Telegram::Bot::Types::Message) && message.text
+          case message.text
+          when '/start'
+            ask_name(message)
+          else
+            @client.api.send_message(chat_id: message.chat.id, text: "I don't understand what you mean.")
+          end
         end
       end
+    ensure
+      lock_file.close
+      File.delete('bot.lock')
     end
   end
 
