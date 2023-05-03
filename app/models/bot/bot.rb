@@ -1,5 +1,4 @@
 require 'telegram/bot'
-require_relative 'models/sunscriber.rb'
 class TelegramBot
   def initialize(token)
     @token = token
